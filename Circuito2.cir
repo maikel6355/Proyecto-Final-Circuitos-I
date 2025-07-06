@@ -1,0 +1,64 @@
+Circuito Proyecto
+
+* Fuente de corriente: Is = 4 A
+I1 0 n1 DC 4
+
+* R1 reemplazada por una fuente de 0 V + RR1 para medir corriente
+VsensR1 n1 n1s 0
+RR1 n1s 0 2
+
+* R2 reemplazada por una fuente de 0 V + RR2 para medir corriente
+VsensR2 n2 n2s 0
+RR2 n2s 0 5
+
+* R3 y R4 en serie: n3 n4 n5
+R3 n3 n4 8
+R4 n4 n5 9
+
+* Capacitor C = 10 mF entre n3 y tierra con fuente de 0V para medir corriente
+VcapSense n3 n3s 0V
+C1 n3s 0 10m
+
+* Inductor L = 2 H entre n4 y tierra
+L1 n4 0 2
+
+* Fuente de voltaje escalón: Vs = 5u(t-2)
+V2 n5 0 PULSE(0 5 2 1n 1n 1e9 2e9)
+
+* Fuente de control 
+Vctrl 10 0 PULSE(0 1 1 1n 1n 100 200)
+
+* Switch 1: conecta 1–3 **antes** del pulso
+S1 n1 n3 10 0 SW_INV
+
+* Switch 2: conecta 3–2 **después** del pulso
+S2 n3 n2 10 0 SW_SW
+
+* Modelos
+.model SW_SW SW(Ron=0.1 Roff=1Meg Vt=0.5 Vh=0.1)
+.model SW_INV SW(Ron=1Meg Roff=0.1 Vt=0.5 Vh=0.1)
+
+
+* duración
+.tran 0.01 4
+
+.control
+run
+
+plot v(n1) v(n2) v(n3) v(n4) v(n5)
+plot v(n3, n4) v(n5, n4)
+plot i(VcapSense)
+
+
+* Graficar corrientes (resistencias medidas a través de fuentes de 0 V)
+plot i(VsensR1) i(VsensR2) i(L1)
+
+* Gnuplots
+*v(n3) v(n4)
+*v(n3, n4) v(n5, n4)
+*i(VcapSense)
+gnuplot Corrientes_R1_R2_L1 i(VsensR1) i(VsensR2) i(L1)
+gnuplot Voltajes_nodos v(n3)
+.endc
+
+.end
